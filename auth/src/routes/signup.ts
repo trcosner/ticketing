@@ -22,7 +22,6 @@ router.post(
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      console.log("email in use");
       throw new BadRequestError("Email in use");
     }
 
