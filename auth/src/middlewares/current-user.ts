@@ -29,7 +29,6 @@ export const currentUser = (
       process.env.JWT_KEY!
     ) as UserPayload;
     req.currentUser = payload;
-    res.send({ currentUser: payload });
   } catch (err) {}
 
   next();
