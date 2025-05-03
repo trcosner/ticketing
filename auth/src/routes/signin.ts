@@ -1,10 +1,10 @@
 import express, { Request, Response } from "express";
 import { body } from "express-validator";
 import jwt from "jsonwebtoken";
-import { ValidateRequest } from "../middlewares/validate-request";
+
 import { User } from "../models/user";
-import { BadRequestError } from "../errors/BadRequestError";
 import { Password } from "../services/password";
+import { BadRequestError, validateRequest } from "@trc-ticketing/common";
 
 const router = express.Router();
 
@@ -17,7 +17,7 @@ router.post(
       .notEmpty()
       .withMessage("You must supply a password"),
   ],
-  ValidateRequest,
+  validateRequest,
   async (req: Request, res: Response) => {
     const { email, password } = req.body;
     const existingUser = await User.findOne({ email });

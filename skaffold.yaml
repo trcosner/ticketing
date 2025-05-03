@@ -16,6 +16,14 @@ build:
         manual:
           - src: "./**/*.ts"
             dest: .
+    - image: trcosner/tickets
+      context: tickets
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "./**/*.ts"
+            dest: .
     - image: trcosner/client
       context: client
       docker:

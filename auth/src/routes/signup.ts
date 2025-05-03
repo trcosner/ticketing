@@ -1,9 +1,8 @@
 import express, { Request, Response } from "express";
 import { body } from "express-validator";
 import { User } from "../models/user";
-import { BadRequestError } from "../errors/BadRequestError";
 import jwt from "jsonwebtoken";
-import { ValidateRequest } from "../middlewares/validate-request";
+import { BadRequestError, validateRequest } from "@trc-ticketing/common";
 
 const router = express.Router();
 
@@ -16,7 +15,7 @@ router.post(
       .isLength({ min: 4, max: 20 })
       .withMessage("Password must be between 4 and 20 characters"),
   ],
-  ValidateRequest,
+  validateRequest,
   async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
