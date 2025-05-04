@@ -11,6 +11,11 @@ const stan = nats.connect("ticketing", clientId, {
 stan.on("connect", () => {
   console.log("Publisher connected to NATS");
 
+  stan.on("close", () => {
+    console.log("NATS connection closed!");
+    process.exit();
+  });
+
   const data = JSON.stringify({
     id: "123",
     title: "concert",
@@ -21,3 +26,6 @@ stan.on("connect", () => {
     console.log("Event published.");
   });
 });
+
+process.on("SIGINT", () => stan.close());
+process.on("SIGTERM", () => stan.close());

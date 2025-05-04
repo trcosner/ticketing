@@ -11,13 +11,28 @@ const stan = nats.connect("ticketing", clientId, {
 
 stan.on("connect", () => {
   console.log("Listener connected to NATS");
+  stan.on("close", () => {
+    console.log("NATS connection closed!");
+    process.exit();
+  });
 
-  const subscription = stan.subscribe("ticket:created");
+  const options = stan.subscriptionOptions().setManualAckMode(true);
+
+  const subscription = stan.subscribe(
+    "ticket:created", // channel name
+    "listenerQueueGroup", // queue group to prevent duplicate event processing
+    options //no automatic message acknowledgement
+  );
   subscription.on("message", (msg: Message) => {
     const data = msg.getData();
 
     if (typeof data === "string") {
       console.log(`Received event #${msg.getSequence()}, with data: ${data}`);
     }
+
+    msg.ack();
   });
 });
+
+process.on("SIGINT", () => stan.close());
+process.on("SIGTERM", () => stan.close());
