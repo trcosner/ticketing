@@ -9,7 +9,7 @@ import {
 } from "@trc-ticketing/common";
 import { deleteOrderRouter } from "./routes/delete";
 import { showOrderRouter } from "./routes/show";
-import { indexOrderRouter } from "./routes";
+import { indexOrderRouter } from "./routes/index";
 import { newOrderRouter } from "./routes/new";
 
 const app = express();

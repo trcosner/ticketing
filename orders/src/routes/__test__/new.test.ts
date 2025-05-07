@@ -1,6 +1,6 @@
 import request from "supertest";
 import { app } from "../../app";
-import mongoose, { mongo } from "mongoose";
+import mongoose from "mongoose";
 import { Ticket } from "../../models/ticket";
 import { Order, OrderStatus } from "../../models/order";
 import { natsWrapper } from "../../nats-wrapper";
@@ -64,4 +64,19 @@ it("reserves a ticket", async () => {
     .set("Cookie", global.getAuthCookie())
     .send({ ticketId: ticket.id })
     .expect(201);
+});
+
+it("emits an order created event", async () => {
+  const ticketTitle = "Ticket Title";
+  const ticketPrice = 20;
+  const ticket = Ticket.build({ title: ticketTitle, price: ticketPrice });
+  await ticket.save();
+
+  await request(app)
+    .post("/api/orders")
+    .set("Cookie", global.getAuthCookie())
+    .send({ ticketId: ticket.id })
+    .expect(201);
+
+  expect(natsWrapper.client.publish).toHaveBeenCalled();
 });
