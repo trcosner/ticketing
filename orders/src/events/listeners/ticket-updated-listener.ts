@@ -7,16 +7,12 @@ import {
 import { Message } from "node-nats-streaming";
 import { Ticket } from "../../models/ticket";
 import { QUEUE_GROUP_NAME } from "./queue-group-name";
-import { version } from "mongoose";
 
 export class TicketUpdatedListener extends Listener<TicketUpdatedEvent> {
   readonly subject: Subjects.TicketUpdated = Subjects.TicketUpdated;
   queueGroupName = QUEUE_GROUP_NAME;
   onMessage = async (data: TicketUpdatedEvent["data"], msg: Message) => {
-    const ticket = await Ticket.findOne({
-      _id: data.id,
-      version: data.version - 1,
-    });
+    const ticket = await Ticket.findByEvent(data);
     if (!ticket) {
       throw new NotFoundError();
     }

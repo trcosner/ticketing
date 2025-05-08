@@ -1,7 +1,8 @@
 import request from "supertest";
 import { app } from "../../app";
-import mongoose from "mongoose";
+import mongoose, { mongo } from "mongoose";
 import { natsWrapper } from "../../nats-wrapper";
+import { Ticket } from "../../models/ticket";
 
 it("returns a 404 if the provided id does not exist", async () => {
   const id = new mongoose.Types.ObjectId().toHexString();
@@ -81,4 +82,28 @@ it("updates the ticket provided valid inputs", async () => {
   expect(ticketResponse.body.title).toEqual("Title 2");
   expect(ticketResponse.body.price).toEqual(10);
   expect(natsWrapper.client.publish).toHaveBeenCalled();
+});
+
+it("rejects updates if the ticket is reserved", async () => {
+  const orderId = new mongoose.Types.ObjectId().toHexString();
+
+  const cookie = global.getAuthCookie();
+  const response = await request(app)
+    .post(`/api/tickets`)
+    .set("Cookie", cookie)
+    .send({ title: "Title", price: 20 })
+    .expect(201);
+  const ticket = await Ticket.findById(response.body.id);
+  ticket!.set({ orderId });
+  await ticket!.save();
+
+  await request(app)
+    .put(`/api/tickets/${response.body.id}`)
+    .set("Cookie", cookie)
+    .send({
+      title: "Title",
+      price: 20,
+      orderId,
+    })
+    .expect(400);
 });
