@@ -32,6 +32,22 @@ build:
         manual:
           - src: "./**/*.ts"
             dest: .
+    - image: trcosner/payments
+      context: payments
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "./**/*.ts"
+            dest: .
+    - image: trcosner/expiration
+      context: expiration
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "./**/*.ts"
+            dest: .
     - image: trcosner/client
       context: client
       docker:
