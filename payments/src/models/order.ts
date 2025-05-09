@@ -39,7 +39,6 @@ const orderSchema = new mongoose.Schema(
     },
   },
   {
-    versionKey: false,
     toJSON: {
       transform(doc, ret) {
         ret.id = ret._id;
@@ -48,10 +47,6 @@ const orderSchema = new mongoose.Schema(
     },
   }
 );
-
-orderSchema.pre("save", async function (done) {
-  done();
-});
 
 orderSchema.set("versionKey", "version");
 orderSchema.plugin(updateIfCurrentPlugin);
