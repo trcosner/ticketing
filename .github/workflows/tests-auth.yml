@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: tests
+name: tests-auth
 
 # Controls when the workflow will run
 on:
@@ -18,4 +18,3 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
       - run: cd auth && npm install && npm run test:ci
-     
