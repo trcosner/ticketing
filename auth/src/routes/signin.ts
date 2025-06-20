@@ -1,13 +1,10 @@
+// auth/src/routes/signin.ts
 import express, { Request, Response } from "express";
 import { body } from "express-validator";
-
-import { User } from "../models/user";
 import { Password } from "../services/password";
-import {
-  BadRequestError,
-  validateRequest,
-  generateJWT,
-} from "@trc-ticketing/common";
+import { User } from "../models/user";
+import { BadRequestError, validateRequest } from "@trc-ticketing/common";
+import { TokenService } from "../services/token";
 
 const router = express.Router();
 
@@ -23,8 +20,8 @@ router.post(
   validateRequest,
   async (req: Request, res: Response) => {
     const { email, password } = req.body;
-    const existingUser = await User.findOne({ email });
 
+    const existingUser = await User.findOne({ email });
     if (!existingUser) {
       throw new BadRequestError("Invalid credentials");
     }
@@ -37,16 +34,29 @@ router.post(
       throw new BadRequestError("Invalid credentials");
     }
 
-    // Generate JWT using centralized function
-    const userJwt = generateJWT({
-      id: existingUser.id,
-      email: existingUser.email,
+    // Generate both access and refresh tokens
+    const deviceInfo = req.get("User-Agent") || "Unknown Device";
+    const ipAddress = req.ip;
+
+    const tokenPair = await TokenService.generateTokenPair(
+      {
+        id: existingUser.id,
+        email: existingUser.email,
+      },
+      deviceInfo,
+      ipAddress,
+      req.get("User-Agent")
+    );
+
+    // Store access token in session (for backward compatibility)
+    req.session = { jwt: tokenPair.accessToken };
+
+    res.status(200).send({
+      user: existingUser,
+      refreshToken: tokenPair.refreshToken,
+      accessTokenExpiresAt: tokenPair.accessTokenExpiresAt,
+      refreshTokenExpiresAt: tokenPair.refreshTokenExpiresAt,
     });
-
-    // Store JWT on session object
-    req.session = { jwt: userJwt };
-
-    res.status(200).send(existingUser);
   }
 );
 
