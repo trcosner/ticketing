@@ -52,7 +52,7 @@ it("returns refresh token on successful signin", async () => {
     })
     .expect(200);
 
-  expect(response.body.refreshToken).toBeDefined();
-  expect(response.body.accessTokenExpiresAt).toBeDefined();
-  expect(response.body.refreshTokenExpiresAt).toBeDefined();
+  expect(response.body.tokens.refreshToken).toBeDefined();
+  expect(response.body.tokens.accessTokenExpiresAt).toBeDefined();
+  expect(response.body.tokens.refreshTokenExpiresAt).toBeDefined();
 });

@@ -43,11 +43,22 @@ router.post(
 
     req.session = { jwt: tokenPair.accessToken };
 
+    // Store refresh token in httpOnly cookie
+    res.cookie("refreshToken", tokenPair.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== "test",
+      sameSite: "strict",
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    });
+
     res.status(201).send({
       user,
-      refreshToken: tokenPair.refreshToken,
-      accessTokenExpiresAt: tokenPair.accessTokenExpiresAt,
-      refreshTokenExpiresAt: tokenPair.refreshTokenExpiresAt,
+      tokens: {
+        accessToken: tokenPair.accessToken,
+        refreshToken: tokenPair.refreshToken,
+        accessTokenExpiresAt: tokenPair.accessTokenExpiresAt,
+        refreshTokenExpiresAt: tokenPair.refreshTokenExpiresAt,
+      },
     });
   }
 );
