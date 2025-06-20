@@ -3,6 +3,7 @@ kind: Config
 deploy:
   kubectl:
     manifests:
+      - infra/k8s/redis-depl.yaml
       - ./infra/k8s/*
 build:
   local:

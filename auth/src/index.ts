@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { app } from "./app";
+import { RedisConnection, redisClient } from "@trc-ticketing/common"; // Add this import
 
 const start = async () => {
   console.log("Starting up...");
@@ -11,6 +12,9 @@ const start = async () => {
   }
 
   try {
+    await RedisConnection.getInstance();
+    console.log("Connected to Redis successfully!");
+
     await mongoose.connect(process.env.MONGO_URI);
     console.log("Connected to mongodb");
   } catch (err) {

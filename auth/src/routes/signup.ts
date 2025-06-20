@@ -1,8 +1,11 @@
 import express, { Request, Response } from "express";
 import { body } from "express-validator";
 import { User } from "../models/user";
-import jwt from "jsonwebtoken";
-import { BadRequestError, validateRequest } from "@trc-ticketing/common";
+import {
+  BadRequestError,
+  validateRequest,
+  generateJWT,
+} from "@trc-ticketing/common";
 
 const router = express.Router();
 
@@ -27,11 +30,11 @@ router.post(
     const user = User.build({ email, password });
     await user.save();
 
-    // Generate JWT
-    const userJwt = jwt.sign(
-      { id: user.id, email: user.email },
-      process.env.JWT_KEY!
-    );
+    // Generate JWT using centralized function
+    const userJwt = generateJWT({
+      id: user.id,
+      email: user.email,
+    });
 
     // Store JWT on session object
     req.session = { jwt: userJwt };
