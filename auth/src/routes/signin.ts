@@ -1,10 +1,13 @@
 import express, { Request, Response } from "express";
 import { body } from "express-validator";
-import jwt from "jsonwebtoken";
 
 import { User } from "../models/user";
 import { Password } from "../services/password";
-import { BadRequestError, validateRequest } from "@trc-ticketing/common";
+import {
+  BadRequestError,
+  validateRequest,
+  generateJWT,
+} from "@trc-ticketing/common";
 
 const router = express.Router();
 
@@ -34,11 +37,11 @@ router.post(
       throw new BadRequestError("Invalid credentials");
     }
 
-    // Generate JWT
-    const userJwt = jwt.sign(
-      { id: existingUser.id, email: existingUser.email },
-      process.env.JWT_KEY!
-    );
+    // Generate JWT using centralized function
+    const userJwt = generateJWT({
+      id: existingUser.id,
+      email: existingUser.email,
+    });
 
     // Store JWT on session object
     req.session = { jwt: userJwt };
