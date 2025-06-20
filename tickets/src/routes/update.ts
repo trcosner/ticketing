@@ -3,6 +3,7 @@ import {
   NotAuthorizedError,
   NotFoundError,
   requireAuth,
+  currentUser,
   validateRequest,
 } from "@trc-ticketing/common";
 import { body } from "express-validator";
@@ -15,6 +16,7 @@ const router = express.Router();
 
 router.put(
   "/api/tickets/:id",
+  currentUser,
   requireAuth,
   [
     body("title").not().isEmpty().withMessage("Title is required"),

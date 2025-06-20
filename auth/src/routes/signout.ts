@@ -17,7 +17,9 @@ router.post("/api/users/signout", async (req, res) => {
 
         if (remainingTTL > 0) {
           // Add JTI to blacklist with remaining TTL
-          await redisClient.set(`blacklist:${payload.jti}`, "1", remainingTTL);
+          await redisClient.set(`blacklist:${payload.jti}`, "1", {
+            EX: remainingTTL,
+          });
           console.log(
             `Blacklisted token ${payload.jti} for ${remainingTTL} seconds`
           );

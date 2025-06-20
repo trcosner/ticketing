@@ -1,4 +1,8 @@
-import { requireAuth, validateRequest } from "@trc-ticketing/common";
+import {
+  requireAuth,
+  currentUser,
+  validateRequest,
+} from "@trc-ticketing/common";
 import { body } from "express-validator";
 import express, { Request, Response } from "express";
 import { Ticket } from "../models/ticket";
@@ -8,6 +12,7 @@ const router = express.Router();
 
 router.post(
   "/api/tickets",
+  currentUser,
   requireAuth,
   [
     body("title").not().isEmpty().withMessage("Title is required"),

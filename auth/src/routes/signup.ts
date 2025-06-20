@@ -6,11 +6,12 @@ import {
   validateRequest,
   generateJWT,
 } from "@trc-ticketing/common";
+import { TokenService } from "../services/token";
 
 const router = express.Router();
 
 router.post(
-  "/api/users/signUp",
+  "/api/users/signup",
   [
     body("email").isEmail().withMessage("Email must be valid"),
     body("password")
@@ -30,16 +31,24 @@ router.post(
     const user = User.build({ email, password });
     await user.save();
 
-    // Generate JWT using centralized function
-    const userJwt = generateJWT({
-      id: user.id,
-      email: user.email,
+    const tokenPair = await TokenService.generateTokenPair(
+      {
+        id: user.id,
+        email: user.email,
+      },
+      req.get("User-Agent") || "Unknown Device",
+      req.ip,
+      req.get("User-Agent")
+    );
+
+    req.session = { jwt: tokenPair.accessToken };
+
+    res.status(201).send({
+      user,
+      refreshToken: tokenPair.refreshToken,
+      accessTokenExpiresAt: tokenPair.accessTokenExpiresAt,
+      refreshTokenExpiresAt: tokenPair.refreshTokenExpiresAt,
     });
-
-    // Store JWT on session object
-    req.session = { jwt: userJwt };
-
-    res.status(201).send({ user });
   }
 );
 

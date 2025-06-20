@@ -3,6 +3,7 @@ import {
   NotFoundError,
   OrderStatus,
   requireAuth,
+  currentUser,
 } from "@trc-ticketing/common";
 import express, { Request, Response } from "express";
 import { Order } from "../models/order";
@@ -13,6 +14,7 @@ const router = express.Router();
 // update this to PATCH and return a different status id
 router.delete(
   "/api/orders/:orderId",
+  currentUser,
   requireAuth,
   async (req: Request, res: Response) => {
     const userId = req.currentUser!.id;

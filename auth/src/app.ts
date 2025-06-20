@@ -8,6 +8,9 @@ import { signinRouter } from "./routes/signin";
 import { signoutRouter } from "./routes/signout";
 import { signupRouter } from "./routes/signup";
 import { errorHandler, NotFoundError } from "@trc-ticketing/common";
+import { refreshRouter } from "./routes/refresh";
+import { sessionsRouter } from "./routes/sessions";
+import { revokeRouter } from "./routes/revoke";
 
 const app = express();
 app.set("trust proxy", true);
@@ -23,6 +26,9 @@ app.use(currentUserRouter);
 app.use(signinRouter);
 app.use(signoutRouter);
 app.use(signupRouter);
+app.use(refreshRouter);
+app.use(sessionsRouter);
+app.use(revokeRouter);
 
 app.all("*", async (req, res, next) => {
   throw new NotFoundError();

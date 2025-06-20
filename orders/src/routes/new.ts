@@ -4,6 +4,7 @@ import {
   NotFoundError,
   OrderStatus,
   requireAuth,
+  currentUser,
   validateRequest,
 } from "@trc-ticketing/common";
 import { body } from "express-validator";
@@ -18,6 +19,7 @@ const EXPIRATION_WINDOW_SECONDS = 60 * 1;
 
 router.post(
   "/api/orders",
+  currentUser,
   requireAuth,
   [body("ticketId").not().isEmpty().withMessage("TicketId must be provided")],
   validateRequest,

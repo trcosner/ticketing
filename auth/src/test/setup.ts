@@ -1,55 +1,21 @@
+// auth/src/test/setup.ts
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 import { app } from "../app";
 import request from "supertest";
 
-// Mock Redis completely for tests
-jest.mock("@trc-ticketing/common", () => {
-  const originalModule = jest.requireActual("@trc-ticketing/common");
-
-  // Create a mock redis client that doesn't try to connect
-  const mockRedisClient = {
-    get: jest.fn().mockResolvedValue(null),
-    set: jest.fn().mockResolvedValue(true),
-    setJSON: jest.fn().mockResolvedValue(true),
-    getJSON: jest.fn().mockResolvedValue(null),
-    del: jest.fn().mockResolvedValue(true),
-    ping: jest.fn().mockResolvedValue("PONG"),
-  };
-
-  return {
-    ...originalModule,
-    redisClient: mockRedisClient,
-    RedisConnection: {
-      getInstance: jest.fn().mockResolvedValue(mockRedisClient),
-      disconnect: jest.fn().mockResolvedValue(undefined),
-      isConnected: jest.fn().mockReturnValue(true),
-    },
-  };
-});
-
-// Also mock the Redis module directly
-jest.mock("redis", () => ({
-  createClient: jest.fn(() => ({
-    connect: jest.fn().mockResolvedValue(undefined),
-    disconnect: jest.fn().mockResolvedValue(undefined),
-    get: jest.fn().mockResolvedValue(null),
-    set: jest.fn().mockResolvedValue("OK"),
-    setex: jest.fn().mockResolvedValue("OK"),
-    del: jest.fn().mockResolvedValue(1),
-    ping: jest.fn().mockResolvedValue("PONG"),
-    isReady: true,
-    on: jest.fn(),
-  })),
-}));
+// Mock TokenService to use mocked responses in tests
+jest.mock("../services/token");
 
 declare global {
   var getAuthCookie: () => Promise<string[]>;
 }
 
 let mongo: any;
+
 beforeAll(async () => {
-  process.env.JWT_KEY = "asdf";
+  process.env.JWT_KEY = "asdfasdf";
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
   mongo = await MongoMemoryServer.create();
   const mongoUri = mongo.getUri();
@@ -58,8 +24,10 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
+  jest.clearAllMocks();
   if (mongoose.connection.db) {
     const collections = await mongoose.connection.db.collections();
+
     for (let collection of collections) {
       await collection.deleteMany({});
     }

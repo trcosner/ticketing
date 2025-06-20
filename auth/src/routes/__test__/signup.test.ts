@@ -1,5 +1,6 @@
 import request from "supertest";
 import { app } from "../../app";
+import { TokenService } from "../../services/token";
 
 it("returns a 201 on successful signup", async () => {
   return request(app)
@@ -71,4 +72,18 @@ it("sets a cookie after sucessful signup", async () => {
     .expect(201);
 
   expect(response.get("Set-Cookie")).toBeDefined();
+});
+
+it("returns refresh token on successful signup", async () => {
+  const response = await request(app)
+    .post("/api/users/signup") // Fix: lowercase 'signup'
+    .send({
+      email: "test@test.com",
+      password: "password",
+    })
+    .expect(201);
+
+  expect(response.body.refreshToken).toBeDefined();
+  expect(response.body.accessTokenExpiresAt).toBeDefined();
+  expect(response.body.refreshTokenExpiresAt).toBeDefined();
 });
