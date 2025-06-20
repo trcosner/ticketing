@@ -31,6 +31,10 @@ router.post("/api/users/signout", async (req, res) => {
   }
 
   req.session = null;
+
+  // Clear refresh token cookie
+  res.clearCookie("refreshToken");
+
   res.send({});
 });
 
